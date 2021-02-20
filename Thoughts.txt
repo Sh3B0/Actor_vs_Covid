@@ -1,0 +1,65 @@
+Questions:
+	1. Can Actor walk through Covid cell (after collecting the mask or doctor)?
+	2. Can any two objects (actor, doctor, mask, covid, home) be inistantiated at the same cell?
+	3. What is the difference between variants, anyway the Algortihm will get the shortest possible path?
+	4. Is there a specific input/output format, or it's up to us to choose?
+
+Task description:
+	- Move actor from starting point [8, 0] on the map to the (known, unique, random) home location
+	- Use shortest path possible, without catching Covid.
+	- Actor(1): can move horizontally, vertically, diagonally.
+	- Home(1): reach there in the least number of steps, Actor knows it's place.
+	- Covid(2): actor can't enter it's 3*3 region, unless visited Doctor or Mask cell first.
+	- Doctor(1), Mask(1): enter any of them once -> covid is gone.
+
+Input:
+	randomly generated 9*9 matrix representing the map.
+	Map Legend (for visualiztion only):
+		A - Actor
+		H - Home
+		C - Covid
+		D - Doctor
+		M - Mask
+		. - Empty
+
+Output:
+	1st line: Win/Lose (lose if actor is trapped and can't get home without going into covid zone.
+	2nd line: Number of steps taken
+	3rd line: Path taken (coordinates)
+	4th line: execution time.
+
+Code:
+	Algortihm #1: Backtracking
+	Algorithm #2: A*
+
+	VARIANT 1: Actor can perceive Covid when next to its zone.
+	VARIANT 2: Actor can perceive Covid 1 step away from its zone.
+	
+	Testing function: Generates random maps and runs both algorithms on both variants
+	Report: 4 comparisons results. 
+
+
+Example:
+
+Input (can have any format):
+.........
+.H....C..
+.........
+.........
+.C..D....
+.........
+........
+.......M.
+A........
+
+Sample Output (can have any format)
+[8,0]
+[7,1]
+[6,2]
+[5,3]
+[4,3]
+[3,3]
+[2,2]
+[1,1]
+
+Explanation: ur, ur, ur, u, u, ul, ul
