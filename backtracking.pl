@@ -1,12 +1,22 @@
+:- ['map.pl'].
+:- consult('map.pl').
+
 % to reset facts, on each knowledge base load.
 :- abolish(home/1).
 :- abolish(covid/1).
 :- abolish(covid_zone/1).
 :- abolish(protection/1).
 :- abolish(best_run/1).
+:- abolish(best_path/1).
 
-best_run(17). % shortest path length, 17 if no path was found (It can be probed that no valid path can exceed 16 in 9*9 lattice).
+best_run(13). % shortest path length, 17 if no path was found (It can be proved that no valid path can exceed 16 in 9*9 lattice).
+best_path([]).
+
 :- dynamic(best_run/1). % to indicate that it will change dynamically.
+:- dynamic(best_path/1).
+:- dynamic(home/1).
+:- dynamic(covid/1).
+:- dynamic(protection/1).
 
 % checks if a location is valid. 
 location(X, Y) :-
@@ -15,25 +25,42 @@ location(X, Y) :-
 
 % hard-coding a sample map, to be replaced by map generator later.
 % mask and doctor are the same effictively, thus we can denote them as "protection".
-/*
-    .........
-    .H....C..
-    .........
-    .........
-    .C..D....
-    .........
-    ........
-    .......M.
-    A........
-*/
+get_random_map :-
+    gen_map,
+    home_m(H),
+    covid1(C1),
+    covid2(C2),
+    protection1(P1),
+    protection2(P2),
+    assert(home(H)),
+    assert(covid(C1)),
+    assert(covid(C2)),
+    assert(protection(P1)),
+    assert(protection(P2)),
+    write('Generated map:'), nl,
+    v(0, 0),v(0, 1),v(0, 2),v(0, 3),v(0, 4),v(0, 5),v(0, 6),v(0, 7),v(0, 8),
+    v(1, 0),v(1, 1),v(1, 2),v(1, 3),v(1, 4),v(1, 5),v(1, 6),v(1, 7),v(1, 8),
+    v(2, 0),v(2, 1),v(2, 2),v(2, 3),v(2, 4),v(2, 5),v(2, 6),v(2, 7),v(2, 8),
+    v(3, 0),v(3, 1),v(3, 2),v(3, 3),v(3, 4),v(3, 5),v(3, 6),v(3, 7),v(3, 8),
+    v(4, 0),v(4, 1),v(4, 2),v(4, 3),v(4, 4),v(4, 5),v(4, 6),v(4, 7),v(4, 8),
+    v(5, 0),v(5, 1),v(5, 2),v(5, 3),v(5, 4),v(5, 5),v(5, 6),v(5, 7),v(5, 8),
+    v(6, 0),v(6, 1),v(6, 2),v(6, 3),v(6, 4),v(6, 5),v(6, 6),v(6, 7),v(6, 8),
+    v(7, 0),v(7, 1),v(7, 2),v(7, 3),v(7, 4),v(7, 5),v(7, 6),v(7, 7),v(7, 8),
+    v(8, 0),v(8, 1),v(8, 2),v(8, 3),v(8, 4),v(8, 5),v(8, 6),v(8, 7),v(8, 8),
+    write("Please allow up to 1 minute, backtracking is not the best algorithm for shortest path problems!"), nl.
 
-home(location(1, 1)).
-covid(location(4, 1)).
-covid(location(1, 6)).
-protection(location(7, 7)). 
-protection(location(4, 4)).
-
-
+v(X, Y) :-
+    (
+        (
+            (home(location(X, Y)) -> write('H') ; false);
+            (covid(location(X, Y)) -> write('C') ; false);
+            (protection(location(X, Y)) -> write('P') ; false);
+            (X = 8, Y = 0 -> write('A') ; false)
+        );
+        write('.')
+    ),
+    (Y = 8 -> nl; true).
+    
 % checks if a location is a covid zone.
 % Opt: save results somewhere so you don't compute them multiple times.
 covid_zone(location(X, Y)) :-
@@ -161,27 +188,40 @@ go(StepCount, [H|T], NextMove, Protected) :-
 % base case: maximize score and return if reached home.
 go(StepCount, [H|T], _, _) :-
     home(H),
-    % list_reduction([H|T], NewList),
-    % length(NewList, NewCount),
     best_run(X),
     StepCount < X,
-    write([H|T]), nl,
-    write(StepCount), nl,
+    %write([H|T]), nl,
+    %write(StepCount), nl,
     assert(best_run(StepCount)),
-    retract(best_run(X)).
+    retract(best_run(X)),
+    best_path(BP),
+    reverse([H|T], BPR),
+    assert(best_path(BPR)),
+    retract(best_path(BP)).
 
-% list_reduction(OldList, NewList]) :-
-%     member(location(A, B), OldList),
-%     member(location(C, D), OldList),
-%     member(location(E, F), OldList),
-    
-
-start :-
+backtrack :-
     (
         go(0, [location(8, 0)], delta(0, 1), 0);
         go(0, [location(8, 0)], delta(-1, 0), 0);
         go(0, [location(8, 0)], delta(-1, 1), 0)
-    ),
-    best_run(X),
-    write(X), nl.
+    ).
+    % (
+    %     protection(P),
+    %     assert(home(P)),
+    %     (
+    %         go(0, [location(8, 0)], delta(0, 1), 0);
+    %         go(0, [location(8, 0)], delta(-1, 0), 0);
+    %         go(0, [location(8, 0)], delta(-1, 1), 0)
+    %     )
+    % )
 
+start :-
+    get_random_map,
+    (backtrack -> write('win'), nl ; true),
+    write('Shortest path length: '),
+    best_run(X),
+    write(X), nl, 
+    write('Shortest path: '),
+    best_path(P),
+    write(P), nl,
+    assert(best_run(12)), !.

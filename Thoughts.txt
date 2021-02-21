@@ -93,4 +93,9 @@ It may find it correctly, but anyway will try to check other solutions, which wi
 
 	- 
 
-	
+TASKS:
+- BFS implementation
+- Backtracking optimization (A-P-H) or (A-H) with limit = 12.
+- Output formatting
+- map visualiztion (optional)
+- Report.
