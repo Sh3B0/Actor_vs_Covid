@@ -10,10 +10,9 @@
 :- dynamic(protection1/1).
 :- dynamic(protection2/1).
 
-% checks if a location is a covid zone.
-% Opt: save results somewhere so you don't compute them multiple times.
+actor(location(8, 0)).
 
-% generates a valid map.
+% generates a map with no collisions (but may be invalid).
 gen_map :-
     random_between(0, 8, Hx),
     random_between(0, 8, Hy), 
@@ -31,6 +30,14 @@ gen_map :-
     assert(covid2(location(C2x, C2y))),
     assert(protection1(location(P1x, P1y))),
     assert(protection2(location(P2x, P2y))),
+    actor(A), home_m(H), covid1(C1), covid2(C2), protection1(P1), protection2(P2),
+    (
+        (
+            H = C1; H = C2; H = P1; H = P2; C1 = C2; C1 = P1; C1 = P2; C2 = P1; C2 = P2; P1 = P2; H = A; P1 = A; P2 = A; C1 = A; C2 = A; 
+            distance(H, C1, 1); distance(H, C2, 1); distance(P1, C1, 1); distance(P2, C1, 1); distance(P1, C2, 1); distance(P2, C2, 1);
+            distance(location(8, 0), C1, 1); distance(location(8, 0), C2, 1) 
+        ) -> (retract(home_m(H)), retract(covid1(C1)), retract(covid2(C2)), retract(protection1(P1)), retract(protection2(P2)), gen_map) ; true
+    ).
 
-    home_m(H), covid1(C1), covid2(C2), protection1(P1), protection2(P2),
-    \+ (H = C1; H = C2; H = P1; H = P2; C1 = C2; C1 = P1; C1 = P2; C2 = P1; C2 = P2; P1 = P2).
+distance(location(A, B), location(C, D), Result) :-
+    Result is max(abs(A-C), abs(B-D)).

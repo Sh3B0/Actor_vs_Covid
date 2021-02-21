@@ -94,8 +94,6 @@ It may find it correctly, but anyway will try to check other solutions, which wi
 	- 
 
 TASKS:
-- Output formatting (Time)
-- Backtracking optimization (A-P-H) or (A-H) with limit = 12.
-- Handling 
 - BFS implementation
 - Report.
+- Backtracking optimization (A-P-H) or (A-H) with limit = 12. 

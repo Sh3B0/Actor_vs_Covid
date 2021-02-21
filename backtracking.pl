@@ -36,7 +36,7 @@ get_random_map :-
     assert(covid(C1)),
     assert(covid(C2)),
 
-    ((covid_zone(H); covid_zone(P1); covid_zone(P2); covid_zone(location(8, 0))) -> (write('Invalid map'), nl, abort) ; true),
+    ((covid_zone(H); covid_zone(P1); covid_zone(P2); covid_zone(location(8, 0))) -> throw('Invalid map') ; true),
 
     assert(home(H)),
     assert(protection(P1)),
@@ -253,10 +253,10 @@ backtrack :-
     % )
 
 
-% hard-coded map for testing
-% home(location(8, 1)).
-% covid(location(3, 7)).
-% covid(location(1, 5)).
+% % hard-coded map for testing
+% home(location(1, 7)).
+% covid(location(6, 0)).
+% covid(location(8, 2)).
 % protection(location(0, 7)).
 % protection(location(0, 8)).
 
@@ -265,12 +265,15 @@ start :-
     (backtrack -> true; true),
     best_run(X),
     best_path(P),
-    (P = [] -> (write('No path was found'), false); true),
+    (P = [] -> (throw("No path was found")); true),
     write('Shortest path length: '),
     write(X), nl, 
     write('Shortest path: '),
     write(P), nl,
     assert(best_run(12)), !.
 
+test_util :-
+    \+ start -> test_util; true.
+
 test :-
-    \+ start -> test; true.
+    time(test_util).
