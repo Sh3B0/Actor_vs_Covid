@@ -32,11 +32,16 @@ get_random_map :-
     covid2(C2),
     protection1(P1),
     protection2(P2),
-    assert(home(H)),
+    
     assert(covid(C1)),
     assert(covid(C2)),
+
+    ((covid_zone(H); covid_zone(P1); covid_zone(P2); covid_zone(location(8, 0))) -> (write('Invalid map'), nl, abort) ; true),
+
+    assert(home(H)),
     assert(protection(P1)),
     assert(protection(P2)),
+
     write('Generated map:'), nl,
     v(0, 0),v(0, 1),v(0, 2),v(0, 3),v(0, 4),v(0, 5),v(0, 6),v(0, 7),v(0, 8),
     v(1, 0),v(1, 1),v(1, 2),v(1, 3),v(1, 4),v(1, 5),v(1, 6),v(1, 7),v(1, 8),
@@ -186,18 +191,50 @@ go(StepCount, [H|T], NextMove, Protected) :-
         
 
 % base case: maximize score and return if reached home.
-go(StepCount, [H|T], _, _) :-
-    home(H),
-    best_run(X),
-    StepCount < X,
-    %write([H|T]), nl,
-    %write(StepCount), nl,
-    assert(best_run(StepCount)),
-    retract(best_run(X)),
-    best_path(BP),
-    reverse([H|T], BPR),
-    assert(best_path(BPR)),
-    retract(best_path(BP)).
+go(StepCount, [CurrentLocation|T], _, _) :-
+    (
+        home(CurrentLocation),
+        best_run(X),
+        StepCount < X,
+        %write(X), nl,
+        assert(best_run(StepCount)),
+        retract(best_run(X)),
+        best_path(BP),
+        reverse([CurrentLocation|T], BPR),
+        assert(best_path(BPR)),
+        retract(best_path(BP))
+    ).
+    % ;(
+    %     protection(CurrentLocation),
+    %     home(HomeLocation),
+    %     distance(CurrentLocation, HomeLocation, SC),
+    %     SCN is StepCount + SC,
+    %     best_run(X),
+    %     assert(best_run(SCN)),
+    %     best_path(BP),
+    %     gen_path(CurrentLocation, HomeLocation, Tmp),
+    %     write("TMP="),
+    %     write(tmp),nl,
+    %     append(Tmp, BP, New),
+    %     reverse(New, Result),
+    %     assert(best_path(Result)),
+    %     retract(best_path(BP))
+    % ).
+
+% distance(location(A, B), location(C, D), Result) :-
+%     Result = max(abs(A-C), abs(B-D)).
+
+% gen_path(location(A, B), location(C, D), Result) :-
+%     Ap1 is A+1, Am1 is A-1, Bp1 is B+1, Bm1 is B-1,
+%     (A=B, C=D -> true; true),
+%     (A<C, B<D -> gen_path(location(Ap1, Bp1), location(C, D), [location(Ap1, Bp1)|Result])),
+%     (A>C, B>D -> gen_path(location(Am1, Bm1), location(C, D), [location(Am1, Bm1)|Result])),
+%     (A<C, B>D -> gen_path(location(Ap1, Bm1), location(C, D), [location(Ap1, Bm1)|Result])),
+%     (A>C, B<D -> gen_path(location(Am1, Bp1), location(C, D), [location(Am1, Bp1)|Result])),
+%     (A=C, B<D -> gen_path(location(A, Bp1), location(C, D), [location(A, Bp1)|Result])),
+%     (A=C, B>D -> gen_path(location(A, Bm1), location(C, D), [location(A, Bm1)|Result])),
+%     (A<C, B=D -> gen_path(location(Ap1, B), location(C, D), [location(Ap1, B)|Result])),
+%     (A>C, B=D -> gen_path(location(Am1, B), location(C, D), [location(Am1, B)|Result])).
 
 backtrack :-
     (
@@ -215,13 +252,25 @@ backtrack :-
     %     )
     % )
 
+
+% hard-coded map for testing
+% home(location(8, 1)).
+% covid(location(3, 7)).
+% covid(location(1, 5)).
+% protection(location(0, 7)).
+% protection(location(0, 8)).
+
 start :-
     get_random_map,
-    (backtrack -> write('win'), nl ; true),
-    write('Shortest path length: '),
+    (backtrack -> true; true),
     best_run(X),
+    best_path(P),
+    (P = [] -> (write('No path was found'), false); true),
+    write('Shortest path length: '),
     write(X), nl, 
     write('Shortest path: '),
-    best_path(P),
     write(P), nl,
     assert(best_run(12)), !.
+
+test :-
+    \+ start -> test; true.

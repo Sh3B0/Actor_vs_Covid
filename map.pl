@@ -33,4 +33,4 @@ gen_map :-
     assert(protection2(location(P2x, P2y))),
 
     home_m(H), covid1(C1), covid2(C2), protection1(P1), protection2(P2),
-    \+ (H = C1; H = C2; H = P1; H = P2; C1 = C2; C1 = P2; C1 = P2; C2 = P1; C2 = P2; P1 = P2).
+    \+ (H = C1; H = C2; H = P1; H = P2; C1 = C2; C1 = P1; C1 = P2; C2 = P1; C2 = P2; P1 = P2).
