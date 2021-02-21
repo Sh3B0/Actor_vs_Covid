@@ -5,7 +5,7 @@
 :- abolish(protection/1).
 :- abolish(best_run/1).
 
-best_run(100). % shortest path length, 100 if no path was found (no valid path can exceed 100 in 9*9 lattice).
+best_run(17). % shortest path length, 17 if no path was found (It can be probed that no valid path can exceed 16 in 9*9 lattice).
 :- dynamic(best_run/1). % to indicate that it will change dynamically.
 
 % checks if a location is valid. 
@@ -27,11 +27,12 @@ location(X, Y) :-
     A........
 */
 
-home(location(8, 8)).
-covid(location(7, 3)).
-covid(location(7, 6)).
-protection(location(0, 7)). 
-protection(location(0, 8)).
+home(location(1, 1)).
+covid(location(4, 1)).
+covid(location(1, 6)).
+protection(location(7, 7)). 
+protection(location(4, 4)).
+
 
 % checks if a location is a covid zone.
 % Opt: save results somewhere so you don't compute them multiple times.
@@ -160,17 +161,27 @@ go(StepCount, [H|T], NextMove, Protected) :-
 % base case: maximize score and return if reached home.
 go(StepCount, [H|T], _, _) :-
     home(H),
+    % list_reduction([H|T], NewList),
+    % length(NewList, NewCount),
     best_run(X),
     StepCount < X,
     write([H|T]), nl,
     write(StepCount), nl,
     assert(best_run(StepCount)),
     retract(best_run(X)).
+
+% list_reduction(OldList, NewList]) :-
+%     member(location(A, B), OldList),
+%     member(location(C, D), OldList),
+%     member(location(E, F), OldList),
     
+
 start :-
-    (go(0, [location(8, 0)], delta(0, 1), 0);
-    go(0, [location(8, 0)], delta(-1, 0), 0);
-    go(0, [location(8, 0)], delta(-1, 1), 0)),
+    (
+        go(0, [location(8, 0)], delta(0, 1), 0);
+        go(0, [location(8, 0)], delta(-1, 0), 0);
+        go(0, [location(8, 0)], delta(-1, 1), 0)
+    ),
     best_run(X),
     write(X), nl.
 

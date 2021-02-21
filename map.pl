@@ -1,0 +1,23 @@
+% % to reset facts, on each knowledge base load.
+% :- abolish(home/1).
+% :- abolish(covid/1).
+% :- abolish(protection/1).
+
+% % checks if a location is valid. 
+% % location(X, Y) :-
+% %     between(0, 8, X),
+% %     between(0, 8, Y).
+
+% % hard-coding a sample map, to be replaced by map generator later.
+% % mask and doctor are the same effictively, thus we can denote them as "protection".
+% /*
+%     .........
+%     .H....C..
+%     .........
+%     .........
+%     .C..D....
+%     .........
+%     ........
+%     .......M.
+%     A........
+% */

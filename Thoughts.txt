@@ -1,7 +1,7 @@
 Questions:
 	1. Can Actor walk through Covid cell (after collecting the mask or doctor)?
 	2. Can any two objects (actor, doctor, mask, covid, home) be inistantiated at the same cell?
-	3. What is the difference between variants, anyway the Algortihm will get the shortest possible path?
+	3. What is the difference between variants, anyway the Algortihm will get the shortest possible path? Or can we output a one that is not optimal 
 	4. Is there a specific input/output format, or it's up to us to choose?
 
 Task description:
@@ -63,3 +63,34 @@ Sample Output (can have any format)
 [1,1]
 
 Explanation: ur, ur, ur, u, u, ul, ul
+
+
+How to tackle the problem:
+
+* Before you even think about it, YOU SHOULD USE BACKTRACKING, don't think about other algorithms.
+
+* First of all, the problem is that the naive Backtracking will take forever to find a path.
+It may find it correctly, but anyway will try to check other solutions, which will take forever to terminate.
+	- What about terminating calls early (optimizing)?
+		- looks like it can't be done, a lot of work, tiny speed-ups, the complexity itself is bad!
+	- What about not doing some of these calls?
+		edge cases won't work (CORRECTNESS)
+	- 
+
+* Trying to be smart:
+	- Observation: Path to goal is simply the min of those:
+		- Path to mask or doc (not direct) then direct distance (calculated) to home
+		- Path to home avoiding covid (not direct)
+
+	- Use a DCG, prolog will find the path
+		- What if the problem persists, still taking forever, we would have wasted a WHOLE lot of time
+
+	- Built-in libraries
+		- In addition to being illegal, they also took forever (or ran out of stack) to complete.
+
+	- Understanding last year code and try to modify it?
+		- Will take a lot of time, problem is different in many aspects, ours is easier.
+
+	- 
+
+	
