@@ -1,28 +1,26 @@
-connected(a,b,1).
-connected(a,c,1).
-connected(a,d,1).
-connected(c,e,1).
-connected(c,f,1).
-connected(d,f,1).
+:- ['common.pl'].
+:- consult('common.pl').
 
-connected2(X,Y,D) :- connected(X,Y,D).
-connected2(X,Y,D) :- connected(Y,X,D).
+:- abolish(dist/1).
+:- dynamic(dist/2).
+:- dynamic(s/2).
 
-consed( A, B, [B|A]).
+start :-
+    location(A, B), location(C, D),
+    distance(location(A, B), location(C, D), 1), \+ covid_zone(location(A, B)), \+ covid_zone(location(C, D)),
+    assert(s(location(A, B), location(C, D))).
 
-bfs(Goal, [[Goal|Visited]|_], Path):- 
-    reverse([Goal|Visited], Path).
+goal(location(8, 6)).
 
-bfs( Goal, [Visited|Rest], Path) :-                     % take one from front
-    Visited = [Start|_],            
-    Start \== Goal,
-    findall( X,
-        ( connected2(X, Start, _), \+ member(X, Visited) ),
-        [T|Extend]),
-    maplist( consed(Visited), [T|Extend], VisitedExtended),      % make many
-    append( Rest, VisitedExtended, UpdatedQueue),       % put them at the end
-    bfs( Goal, UpdatedQueue, Path ).
+solve(Start, Solution) :-
+    breadthfirst([ [Start] ], Solution).
 
+breadthfirst([ [Node | Path] |_], [Node | Path] ) :-
+    goal(Node).
 
-
-breadth_first(Start, Goal, Path):- bfs( Goal, [[Start]], Path).
+breadthfirst([ [N | Path] | Paths], Solution) :-
+    bagof([M,N|Path],
+    (s( N, M), \+ member( M, [N | Path] ) ), NewPaths),
+    append(Paths, NewPaths, Pathsl), !,
+    breadthfirst(Pathsl, Solution);
+    breadthfirst(Paths, Solution).

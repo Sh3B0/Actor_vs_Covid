@@ -1,15 +1,14 @@
-:- ['map.pl'].
-:- consult('map.pl').
+:- ['common.pl'].
+:- consult('common.pl').
 
 % to reset facts, on each knowledge base load.
 :- abolish(home/1).
 :- abolish(covid/1).
-:- abolish(covid_zone/1).
 :- abolish(protection/1).
 :- abolish(best_run/1).
 :- abolish(best_path/1).
 
-best_run(13). % shortest path length, 17 if no path was found (It can be proved that no valid path can exceed 16 in 9*9 lattice).
+best_run(13). % shortest path max length.
 best_path([]).
 
 :- dynamic(best_run/1). % to indicate that it will change dynamically.
@@ -18,13 +17,6 @@ best_path([]).
 :- dynamic(covid/1).
 :- dynamic(protection/1).
 
-% checks if a location is valid. 
-location(X, Y) :-
-    between(0, 8, X),
-    between(0, 8, Y).
-
-% hard-coding a sample map, to be replaced by map generator later.
-% mask and doctor are the same effictively, thus we can denote them as "protection".
 get_random_map :-
     gen_map,
     home_m(H),
@@ -54,6 +46,7 @@ get_random_map :-
     v(8, 0),v(8, 1),v(8, 2),v(8, 3),v(8, 4),v(8, 5),v(8, 6),v(8, 7),v(8, 8),
     write("Please allow up to 1 minute, backtracking is not the best algorithm for shortest path problems!"), nl.
 
+% visualize the element at location(X, Y)
 v(X, Y) :-
     (
         (
@@ -66,11 +59,6 @@ v(X, Y) :-
     ),
     (Y = 8 -> nl; true).
     
-% checks if a location is a covid zone.
-% Opt: save results somewhere so you don't compute them multiple times.
-covid_zone(location(X, Y)) :-
-    covid(location(A, B)), distance(location(X, Y), location(A, B), 1).
-
 /*
     Actor move rule: succeeds if moved to a valid location and the actor is safe from covid.
         move(A, D, B, P): moves actor from point A in direction D to reach point B

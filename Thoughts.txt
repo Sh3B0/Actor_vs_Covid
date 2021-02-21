@@ -94,6 +94,10 @@ It may find it correctly, but anyway will try to check other solutions, which wi
 	- 
 
 TASKS:
-- BFS implementation
+- BFS implementation (or A*)
 - Report.
 - Backtracking optimization (A-P-H) or (A-H) with limit = 12. 
+- Bug:
+	Case when home is surrounded by covid (more that 12 steps needed).
+- Edge case:
+	Home and all protectors are surrounded by covid (impossible).
