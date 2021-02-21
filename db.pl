@@ -27,11 +27,11 @@ location(X, Y) :-
     A........
 */
 
-home(location(1, 1)).
-covid(location(4, 1)).
-covid(location(1, 6)).
-protection(location(7, 7)). 
-protection(location(4, 4)).
+home(location(8, 8)).
+covid(location(7, 3)).
+covid(location(7, 6)).
+protection(location(0, 7)). 
+protection(location(0, 8)).
 
 % checks if a location is a covid zone.
 covid_zone(location(X, Y)) :-
@@ -80,35 +80,128 @@ ur(delta(-1, 1)).
 bl(delta(1, -1)).
 br(delta(1, 1)).
 
+
 go(StepCount, [H|T], NextMove, Protected) :-
     best_run(B),
     StepCount < B,
 
     % NextMove was legal, actor is in now in some location X after the move.
-    move(H, NextMove, X, Protected), 
+    move(H, NextMove, location(Ax, Ay), Protected), 
 
     % Opt: can you check visited in a faster way?
-    \+ member(X, T), % that new location was not visited before.
+    \+ member(location(Ax, Ay), T), % that new location was not visited before.
     
     % Opt: can you reduce (U, L) to UL?
-    append([X, H], T, Path), % append the new location to the path.
+    append([location(Ax, Ay), H], T, Path), % append the new location to the path.
     
     % is the new location a protection zone?
-    (protection(X) -> P is 1 ; P is Protected),
+    (protection(location(Ax, Ay)) -> P is 1 ; P is Protected),
 
     Sp1 is StepCount + 1, % now our move can lead to a solution, try going further
     l(L), r(R), u(U), d(D), ul(UL), ur(UR), bl(BL), br(BR),
+
+    % Opt: can you make a guided search, try the calls that are more likely to get you home first.        
+    home(location(Hx, Hy)),
+    
     (
-        % Opt: can you make a guided search, try the calls that are more likely to get you home first.
-        go(Sp1, Path, U, P);
-        go(Sp1, Path, R, P);
-        go(Sp1, Path, UR, P);
-        go(Sp1, Path, UL, P)
-        % go(Sp1, Path, L, P);
-        % go(Sp1, Path, BL, P);
-        % go(Sp1, Path, BR, P);
-        % go(Sp1, Path, D, P)
+        (Hx =< Ax, Hy >= Ay ->
+            (
+                go(Sp1, Path, UR, P);
+                go(Sp1, Path, U, P);
+                go(Sp1, Path, R, P);
+                go(Sp1, Path, UL, P);
+                go(Sp1, Path, BR, P);
+                go(Sp1, Path, D, P);
+                go(Sp1, Path, L, P);
+                go(Sp1, Path, BL, P)
+            ) ; true
+        ),
+        (Hx >= Ax, Hy =< Ay ->
+            (
+                go(Sp1, Path, BL, P);
+                go(Sp1, Path, D, P);
+                go(Sp1, Path, L, P);
+                go(Sp1, Path, BR, P);
+                go(Sp1, Path, UL, P);
+                go(Sp1, Path, U, P);
+                go(Sp1, Path, R, P);
+                go(Sp1, Path, UR, P)
+            ) ; true
+        ),
+        (Hx =< Ax, Hy =< Ay ->
+            (
+                go(Sp1, Path, UL, P);
+                go(Sp1, Path, U, P);
+                go(Sp1, Path, L, P);
+                go(Sp1, Path, UR, P);
+                go(Sp1, Path, BL, P);
+                go(Sp1, Path, D, P);
+                go(Sp1, Path, R, P);
+                go(Sp1, Path, BR, P)
+            ) ; true
+        ),
+        (Hx >= Ax, Hy >= Ay ->
+            (
+                go(Sp1, Path, BR, P);
+                go(Sp1, Path, D, P);
+                go(Sp1, Path, R, P);
+                go(Sp1, Path, BL, P);
+                go(Sp1, Path, UR, P);
+                go(Sp1, Path, U, P);
+                go(Sp1, Path, L, P);
+                go(Sp1, Path, UL, P)
+            ) ; true
+        )
+        % (Hx = Ax, Hy > Ay ->
+        %     (
+        %         go(Sp1, Path, R, P);
+        %         go(Sp1, Path, BR, P);
+        %         go(Sp1, Path, UR, P);
+        %         go(Sp1, Path, D, P);
+        %         go(Sp1, Path, U, P);
+        %         go(Sp1, Path, UL, P);
+        %         go(Sp1, Path, BL, P);
+        %         go(Sp1, Path, L, P)
+        %     ) ; true
+        % ),
+        % (Hx = Ax, Hy < Ay ->
+        %     (
+        %         go(Sp1, Path, L, P);
+        %         go(Sp1, Path, BL, P);
+        %         go(Sp1, Path, UL, P);
+        %         go(Sp1, Path, D, P);
+        %         go(Sp1, Path, U, P);
+        %         go(Sp1, Path, UR, P);
+        %         go(Sp1, Path, BR, P);
+        %         go(Sp1, Path, R, P)
+        %     ) ; true
+        % ),
+        % (Hx < Ax, Hy = Ay ->
+        %     (
+        %         go(Sp1, Path, U, P);
+        %         go(Sp1, Path, UL, P);
+        %         go(Sp1, Path, UR, P);
+        %         go(Sp1, Path, L, P);
+        %         go(Sp1, Path, R, P);
+        %         go(Sp1, Path, BL, P);
+        %         go(Sp1, Path, BR, P);
+        %         go(Sp1, Path, D, P)
+        %     ) ; true
+        % ),
+        % (Hx > Ax, Hy = Ay ->
+        %     (
+        %         go(Sp1, Path, D, P);
+        %         go(Sp1, Path, BL, P);
+        %         go(Sp1, Path, BR, P);
+        %         go(Sp1, Path, L, P);
+        %         go(Sp1, Path, R, P);
+        %         go(Sp1, Path, UL, P);
+        %         go(Sp1, Path, UR, P);
+        %         go(Sp1, Path, U, P)
+        %     ) ; true
+        % )
     ).
+        
 
 % base case: maximize score and return if reached home.
 go(StepCount, [H|T], _, _) :-
