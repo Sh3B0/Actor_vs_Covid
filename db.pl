@@ -34,6 +34,7 @@ protection(location(0, 7)).
 protection(location(0, 8)).
 
 % checks if a location is a covid zone.
+% Opt: save results somewhere so you don't compute them multiple times.
 covid_zone(location(X, Y)) :-
     covid(location(A, B)),
     (
@@ -89,7 +90,7 @@ go(StepCount, [H|T], NextMove, Protected) :-
     move(H, NextMove, location(Ax, Ay), Protected), 
 
     % Opt: can you check visited in a faster way?
-    \+ member(location(Ax, Ay), T), % that new location was not visited before.
+    \+ memberchk(location(Ax, Ay), T), % that new location was not visited before.
     
     % Opt: can you reduce (U, L) to UL?
     append([location(Ax, Ay), H], T, Path), % append the new location to the path.
@@ -100,7 +101,8 @@ go(StepCount, [H|T], NextMove, Protected) :-
     Sp1 is StepCount + 1, % now our move can lead to a solution, try going further
     l(L), r(R), u(U), d(D), ul(UL), ur(UR), bl(BL), br(BR),
 
-    % Opt: can you make a guided search, try the calls that are more likely to get you home first.        
+    % Opt: can you make a guided search, try the calls that are more likely to get you home first.  
+
     home(location(Hx, Hy)),
     
     (
@@ -152,54 +154,6 @@ go(StepCount, [H|T], NextMove, Protected) :-
                 go(Sp1, Path, UL, P)
             ) ; true
         )
-        % (Hx = Ax, Hy > Ay ->
-        %     (
-        %         go(Sp1, Path, R, P);
-        %         go(Sp1, Path, BR, P);
-        %         go(Sp1, Path, UR, P);
-        %         go(Sp1, Path, D, P);
-        %         go(Sp1, Path, U, P);
-        %         go(Sp1, Path, UL, P);
-        %         go(Sp1, Path, BL, P);
-        %         go(Sp1, Path, L, P)
-        %     ) ; true
-        % ),
-        % (Hx = Ax, Hy < Ay ->
-        %     (
-        %         go(Sp1, Path, L, P);
-        %         go(Sp1, Path, BL, P);
-        %         go(Sp1, Path, UL, P);
-        %         go(Sp1, Path, D, P);
-        %         go(Sp1, Path, U, P);
-        %         go(Sp1, Path, UR, P);
-        %         go(Sp1, Path, BR, P);
-        %         go(Sp1, Path, R, P)
-        %     ) ; true
-        % ),
-        % (Hx < Ax, Hy = Ay ->
-        %     (
-        %         go(Sp1, Path, U, P);
-        %         go(Sp1, Path, UL, P);
-        %         go(Sp1, Path, UR, P);
-        %         go(Sp1, Path, L, P);
-        %         go(Sp1, Path, R, P);
-        %         go(Sp1, Path, BL, P);
-        %         go(Sp1, Path, BR, P);
-        %         go(Sp1, Path, D, P)
-        %     ) ; true
-        % ),
-        % (Hx > Ax, Hy = Ay ->
-        %     (
-        %         go(Sp1, Path, D, P);
-        %         go(Sp1, Path, BL, P);
-        %         go(Sp1, Path, BR, P);
-        %         go(Sp1, Path, L, P);
-        %         go(Sp1, Path, R, P);
-        %         go(Sp1, Path, UL, P);
-        %         go(Sp1, Path, UR, P);
-        %         go(Sp1, Path, U, P)
-        %     ) ; true
-        % )
     ).
         
 
@@ -219,3 +173,4 @@ start :-
     go(0, [location(8, 0)], delta(-1, 1), 0)),
     best_run(X),
     write(X), nl.
+
