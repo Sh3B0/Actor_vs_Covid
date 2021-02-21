@@ -42,7 +42,7 @@ get_random_map :-
     assert(protection(P1)),
     assert(protection(P2)),
 
-    write('Generated map:'), nl,
+    write('Generated map:'), nl, % sorry but this was faster to write :D
     v(0, 0),v(0, 1),v(0, 2),v(0, 3),v(0, 4),v(0, 5),v(0, 6),v(0, 7),v(0, 8),
     v(1, 0),v(1, 1),v(1, 2),v(1, 3),v(1, 4),v(1, 5),v(1, 6),v(1, 7),v(1, 8),
     v(2, 0),v(2, 1),v(2, 2),v(2, 3),v(2, 4),v(2, 5),v(2, 6),v(2, 7),v(2, 8),
@@ -69,17 +69,7 @@ v(X, Y) :-
 % checks if a location is a covid zone.
 % Opt: save results somewhere so you don't compute them multiple times.
 covid_zone(location(X, Y)) :-
-    covid(location(A, B)),
-    (
-        (X =:= A, Y =:= B + 1);
-        (X =:= A, Y =:= B - 1);
-        (X =:= A + 1, Y =:= B);
-        (X =:= A + 1, Y =:= B + 1);
-        (X =:= A + 1, Y =:= B - 1);
-        (X =:= A - 1, Y =:= B);
-        (X =:= A - 1, Y =:= B + 1);
-        (X =:= A - 1, Y =:= B - 1)
-    ).
+    covid(location(A, B)), distance(location(X, Y), location(A, B), 1).
 
 /*
     Actor move rule: succeeds if moved to a valid location and the actor is safe from covid.
