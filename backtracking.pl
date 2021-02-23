@@ -1,64 +1,18 @@
+% load common predicates
 :- ['common.pl'].
 :- consult('common.pl').
 
 % to reset facts, on each knowledge base load.
-:- abolish(home/1).
-:- abolish(covid/1).
-:- abolish(protection/1).
 :- abolish(best_run/1).
 :- abolish(best_path/1).
 
-best_run(13). % shortest path max length.
-best_path([]).
+best_run(13). % shortest path (to the nearest non-covid object) max length.
+best_path([]). % to store answer
 
-:- dynamic(best_run/1). % to indicate that it will change dynamically.
+% to indicate that it will change dynamically.
+:- dynamic(best_run/1). 
 :- dynamic(best_path/1).
-:- dynamic(home/1).
-:- dynamic(covid/1).
-:- dynamic(protection/1).
 
-get_random_map :-
-    gen_map,
-    home_m(H),
-    covid1(C1),
-    covid2(C2),
-    protection1(P1),
-    protection2(P2),
-    
-    assert(covid(C1)),
-    assert(covid(C2)),
-
-    ((covid_zone(H); covid_zone(P1); covid_zone(P2); covid_zone(location(8, 0))) -> throw('Invalid map') ; true),
-
-    assert(home(H)),
-    assert(protection(P1)),
-    assert(protection(P2)),
-
-    write('Generated map:'), nl, % sorry but this was faster to write :D
-    v(0, 0),v(0, 1),v(0, 2),v(0, 3),v(0, 4),v(0, 5),v(0, 6),v(0, 7),v(0, 8),
-    v(1, 0),v(1, 1),v(1, 2),v(1, 3),v(1, 4),v(1, 5),v(1, 6),v(1, 7),v(1, 8),
-    v(2, 0),v(2, 1),v(2, 2),v(2, 3),v(2, 4),v(2, 5),v(2, 6),v(2, 7),v(2, 8),
-    v(3, 0),v(3, 1),v(3, 2),v(3, 3),v(3, 4),v(3, 5),v(3, 6),v(3, 7),v(3, 8),
-    v(4, 0),v(4, 1),v(4, 2),v(4, 3),v(4, 4),v(4, 5),v(4, 6),v(4, 7),v(4, 8),
-    v(5, 0),v(5, 1),v(5, 2),v(5, 3),v(5, 4),v(5, 5),v(5, 6),v(5, 7),v(5, 8),
-    v(6, 0),v(6, 1),v(6, 2),v(6, 3),v(6, 4),v(6, 5),v(6, 6),v(6, 7),v(6, 8),
-    v(7, 0),v(7, 1),v(7, 2),v(7, 3),v(7, 4),v(7, 5),v(7, 6),v(7, 7),v(7, 8),
-    v(8, 0),v(8, 1),v(8, 2),v(8, 3),v(8, 4),v(8, 5),v(8, 6),v(8, 7),v(8, 8),
-    write("Please allow up to 1 minute, backtracking is not the best algorithm for shortest path problems!"), nl.
-
-% visualize the element at location(X, Y)
-v(X, Y) :-
-    (
-        (
-            (home(location(X, Y)) -> write('H') ; false);
-            (covid(location(X, Y)) -> write('C') ; false);
-            (protection(location(X, Y)) -> write('P') ; false);
-            (X = 8, Y = 0 -> write('A') ; false)
-        );
-        write('.')
-    ),
-    (Y = 8 -> nl; true).
-    
 /*
     Actor move rule: succeeds if moved to a valid location and the actor is safe from covid.
         move(A, D, B, P): moves actor from point A in direction D to reach point B
@@ -76,13 +30,13 @@ move(location(X, Y), delta(Dx, Dy), location(Xn, Yn), P) :-
     Xn is X_2,
     Yn is Y_2.
 
-% checks if a delta move is valid.
+% checks if a delta vector is valid.
 delta(Dx, Dy) :-
     \+ (Dx == 0, Dy == 0),
     between(-1, 1, Dx),
     between(-1, 1, Dy).
 
-% directions
+% direction aliases to make my life easier
 l(delta(0, -1)).
 r(delta(0, 1)).
 u(delta(-1, 0)).
@@ -92,7 +46,7 @@ ur(delta(-1, 1)).
 bl(delta(1, -1)).
 br(delta(1, 1)).
 
-
+% backtracking routine
 go(StepCount, [H|T], NextMove, Protected) :-
     best_run(B),
     StepCount < B,
@@ -100,22 +54,20 @@ go(StepCount, [H|T], NextMove, Protected) :-
     % NextMove was legal, actor is in now in some location X after the move.
     move(H, NextMove, location(Ax, Ay), Protected), 
 
-    % Opt: can you check visited in a faster way?
-    \+ memberchk(location(Ax, Ay), T), % that new location was not visited before.
+    % that new location was not visited before.
+    \+ memberchk(location(Ax, Ay), T), % Optimization: can you check visited in a faster way?
     
-    % Opt: can you reduce (U, L) to UL?
-    append([location(Ax, Ay), H], T, Path), % append the new location to the path.
+    % append the new location to the path.
+    append([location(Ax, Ay), H], T, Path), % Optimization: can you reduce (U, L) to UL? 
     
     % is the new location a protection zone?
     (protection(location(Ax, Ay)) -> P is 1 ; P is Protected),
 
     Sp1 is StepCount + 1, % now our move can lead to a solution, try going further
-    l(L), r(R), u(U), d(D), ul(UL), ur(UR), bl(BL), br(BR),
-
-    % Opt: can you make a guided search, try the calls that are more likely to get you home first.  
-
-    home(location(Hx, Hy)),
-    
+    l(L), r(R), u(U), d(D), ul(UL), ur(UR), bl(BL), br(BR), % get aliases defined above
+  
+    % recursive backtracking calls, optimized to check the paths that are more likely to get actor home faster first.
+    home(location(Hx, Hy)),    
     (
         (Hx =< Ax, Hy >= Ay ->
             (
@@ -199,9 +151,6 @@ go(StepCount, [CurrentLocation|T], _, _) :-
     %     retract(best_path(BP))
     % ).
 
-% distance(location(A, B), location(C, D), Result) :-
-%     Result = max(abs(A-C), abs(B-D)).
-
 % gen_path(location(A, B), location(C, D), Result) :-
 %     Ap1 is A+1, Am1 is A-1, Bp1 is B+1, Bm1 is B-1,
 %     (A=B, C=D -> true; true),
@@ -231,15 +180,18 @@ backtrack :-
     % )
 
 
-% % hard-coded map for testing
+% Hard-coded (impossible) map for custom testing
+% TO USE: uncomment the following lines and comment the first line 'get_random_map' in predicate 'start_backtrack'
+
 % home(location(1, 7)).
-% covid(location(6, 0)).
-% covid(location(8, 2)).
+% covid(location(1, 5)).
+% covid(location(3, 7)).
 % protection(location(0, 7)).
 % protection(location(0, 8)).
 
-start :-
+start_backtrack :-
     get_random_map,
+    write("Please allow up to 1 minute, backtracking is not the best algorithm for shortest path problems!"), nl,
     (backtrack -> true; true),
     best_run(X),
     best_path(P),
@@ -251,7 +203,8 @@ start :-
     assert(best_run(12)), !.
 
 test_util :-
-    \+ start -> test_util; true.
+    \+ start_backtrack -> test_util; true.
 
-test :-
+test_bt :-
+    ['backtracking.pl'],
     time(test_util).

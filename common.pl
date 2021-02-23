@@ -4,6 +4,14 @@
 :- abolish(protection1/1).
 :- abolish(protection2/1).
 
+:- abolish(home/1).
+:- abolish(covid/1).
+:- abolish(protection/1).
+
+:- dynamic(home/1).
+:- dynamic(covid/1).
+:- dynamic(protection/1).
+
 :- dynamic(home_m/1).
 :- dynamic(covid1/1).
 :- dynamic(covid2/1).
@@ -12,10 +20,53 @@
 
 actor(location(8, 0)).
 
-% generates a valid map
+get_random_map :-
+    gen_map,
+    home_m(H),
+    covid1(C1),
+    covid2(C2),
+    protection1(P1),
+    protection2(P2),
+    
+    assert(covid(C1)),
+    assert(covid(C2)),
+
+    ((covid_zone(H); covid_zone(P1); covid_zone(P2); covid_zone(location(8, 0))) -> throw('Invalid map') ; true),
+
+    assert(home(H)),
+    assert(protection(P1)),
+    assert(protection(P2)),
+
+    write('Generated map:'), nl, % sorry but this was faster to write :D
+    v(0, 0),v(0, 1),v(0, 2),v(0, 3),v(0, 4),v(0, 5),v(0, 6),v(0, 7),v(0, 8),
+    v(1, 0),v(1, 1),v(1, 2),v(1, 3),v(1, 4),v(1, 5),v(1, 6),v(1, 7),v(1, 8),
+    v(2, 0),v(2, 1),v(2, 2),v(2, 3),v(2, 4),v(2, 5),v(2, 6),v(2, 7),v(2, 8),
+    v(3, 0),v(3, 1),v(3, 2),v(3, 3),v(3, 4),v(3, 5),v(3, 6),v(3, 7),v(3, 8),
+    v(4, 0),v(4, 1),v(4, 2),v(4, 3),v(4, 4),v(4, 5),v(4, 6),v(4, 7),v(4, 8),
+    v(5, 0),v(5, 1),v(5, 2),v(5, 3),v(5, 4),v(5, 5),v(5, 6),v(5, 7),v(5, 8),
+    v(6, 0),v(6, 1),v(6, 2),v(6, 3),v(6, 4),v(6, 5),v(6, 6),v(6, 7),v(6, 8),
+    v(7, 0),v(7, 1),v(7, 2),v(7, 3),v(7, 4),v(7, 5),v(7, 6),v(7, 7),v(7, 8),
+    v(8, 0),v(8, 1),v(8, 2),v(8, 3),v(8, 4),v(8, 5),v(8, 6),v(8, 7),v(8, 8).
+    
+% visualize the element at location(X, Y)
+v(X, Y) :-
+    (
+        (
+            (home(location(X, Y)) -> write('H') ; false);
+            (covid(location(X, Y)) -> write('C') ; false);
+            (protection(location(X, Y)) -> write('P') ; false);
+            (X = 8, Y = 0 -> write('A') ; false)
+        );
+        write('.')
+    ),
+    (Y = 8 -> nl; true).
+
+
+
+% generates a valid (non-trivial) map
 gen_map :-
-    random_between(0, 8, Hx),
-    random_between(0, 8, Hy), 
+    random_between(0, 5, Hx), 
+    random_between(3, 8, Hy), 
     random_between(0, 8, C1x),
     random_between(0, 8, C1y), 
     random_between(0, 8, C2x),
@@ -46,8 +97,9 @@ location(X, Y) :-
 
 % checks if a location is a covid zone.
 covid_zone(location(X, Y)) :-
-    (covid1(location(A, B)); covid2(location(A, B))) , distance(location(X, Y), location(A, B), 1).
-
-
+    covid(location(X, Y));
+    (covid(location(A, B)), distance(location(X, Y), location(A, B), 1)).
+    
+% direct distance between two locations 
 distance(location(A, B), location(C, D), Result) :-
     Result is max(abs(A-C), abs(B-D)).

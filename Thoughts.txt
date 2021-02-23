@@ -91,13 +91,31 @@ It may find it correctly, but anyway will try to check other solutions, which wi
 	- Understanding last year code and try to modify it?
 		- Will take a lot of time, problem is different in many aspects, ours is easier.
 
-	- 
+
 
 TASKS:
-- BFS implementation (or A*)
-- Report.
-- Backtracking optimization (A-P-H) or (A-H) with limit = 12. 
-- Bug:
-	Case when home is surrounded by covid (more that 12 steps needed).
-- Edge case:
-	Home and all protectors are surrounded by covid (impossible).
+- Astar doesn't collect the mask, thus not getting the shortest path sometimes.
+	- Solution: astar shold calculate the minimum between
+		- Path from actor to home
+		- Path from actor to the nearest mask/doctor + direct path from there to home.
+	- Example map (answer=5, aster now outputs 6):
+		% home(location(8, 5)).
+		% covid(location(8, 3)).
+		% covid(location(0, 8)).
+		% protection(location(8, 1)).
+		% protection(location(0, 0)).
+
+- Major bug in Backtracking:
+	- Case when home is surrounded by covid and there are mask/doctor outside the surrounded area
+	- Solution then is to grab that mask first, then go home.
+	- Backtracking algorithm behaviour: will take a lot of time and fails (if more that 12 steps needed).
+	- astar should succeed here, after solving the above issue.
+	- Example map (asnwer=14):
+		% home(location(1, 7)).
+		% covid(location(1, 5)).
+		% covid(location(3, 7)).
+		% protection(location(1, 0)).
+		% protection(location(8, 8)).
+
+- Complete Report.
+- WTF is two variants?
