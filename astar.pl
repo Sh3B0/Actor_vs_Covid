@@ -75,6 +75,7 @@ heruistic(L1, L2, Her):-
 % protection1(location(0, 7)).
 % protection2(location(0, 8)).
 
+% gets a generated rendom map, applies algorithm, and write results
 start_astar :-
     get_random_map,
     home(H),
@@ -119,6 +120,7 @@ start_astar :-
     ),
     nl, write("Shortest path length: "), write(Spl), nl.
 
+% starting point: after loading the knowledge base, just write 'test_as' and see the magic!
 test_as :-
     ['astar.pl'],
     time(once(start_astar)).

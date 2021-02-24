@@ -181,7 +181,7 @@ backtrack :-
 % protection(location(0, 7)).
 % protection(location(0, 8)).
 
-% gets a generated rendom map, apply algorithm, and write results
+% gets a generated rendom map, applies algorithm, and write results
 start_backtrack :-
     get_random_map,
     write("Please allow up to 1 minute, backtracking is not the best algorithm for shortest path problems!"), nl,
