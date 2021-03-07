@@ -41,6 +41,7 @@ gen_map :-
     assert(protection1(location(P1x, P1y))),
     assert(protection2(location(P2x, P2y))),
     actor(A), home_m(H), covid1(C1), covid2(C2), protection1(P1), protection2(P2),
+	
     % validates the map
     (
         (

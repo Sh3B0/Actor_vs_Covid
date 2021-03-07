@@ -142,8 +142,8 @@ backtrack :-
     ).
 
 
-% Hard-coded (impossible) map for custom testing
-% TO USE: uncomment the map and comment the first line 'get_random_map' in predicate 'start_backtrack'
+% Hard-coded maps for custom testing (check report for visualization)
+% TO USE: uncomment the map and comment the first line 'get_random_map' in rule 'start_backtrack'
 
 % home(location(1,1)).
 % covid(location(4,1)).
@@ -199,7 +199,7 @@ start_backtrack :-
 test_util :-
     \+ start_backtrack -> test_util; true.
 
-% starting point: after loading the knowledge base, just write 'test_bt' and see the magic!
+% starting point: after loading the knowledge base, just write 'test_bt.' and see the magic!
 test_bt :-
     ['backtracking.pl'],
     time(test_util).

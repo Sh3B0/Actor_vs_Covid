@@ -43,7 +43,7 @@ heruistic(L1, L2, Her):-
 
 
 % Hard-coded maps for custom testing (check report for visualization)
-% TO USE: uncomment the map lines and comment the first line 'get_random_map' in predicate 'start_astar'
+% TO USE: uncomment the map lines and comment the first line 'get_random_map' in rule 'start_astar'
 
 % home(location(1,1)).
 % covid(location(4,1)).
@@ -120,7 +120,7 @@ start_astar :-
     ),
     nl, write("Shortest path length: "), write(Spl), nl.
 
-% starting point: after loading the knowledge base, just write 'test_as' and see the magic!
+% starting point: after loading the knowledge base, just write 'test_as.' and see the magic!
 test_as :-
     ['astar.pl'],
     time(once(start_astar)).
