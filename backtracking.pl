@@ -141,65 +141,28 @@ backtrack :-
         go(0, [location(8, 0)], delta(-1, 1), 0)
     ).
 
-
-% Hard-coded maps for custom testing (check report for visualization)
-% TO USE: uncomment the map and comment the first line 'get_random_map' in rule 'start_backtrack'
-
-% home(location(1,1)).
-% covid(location(4,1)).
-% covid(location(1,6)).
-% protection(location(4,4)).
-% protection(location(7,7)).
-
-% home(location(8,8)).
-% covid(location(7,3)).
-% covid(location(7,6)).
-% protection(location(0,6)).
-% protection(location(0,7)).
-
-% home(location(1, 7)).
-% covid(location(1, 5)).
-% covid(location(3, 7)).
-% protection(location(1, 0)).
-% protection(location(8, 8)).
-
-% home(location(8, 5)).
-% covid(location(6, 5)).
-% covid(location(8, 3)).
-% protection(location(3, 5)).
-% protection(location(8, 8)).
-
-% home(location(1, 7)).
-% covid(location(1, 5)).
-% covid(location(3, 7)).
-% protection(location(0, 7)).
-% protection(location(0, 8)).
-
-% home(location(1, 7)).
-% covid(location(5, 1)).
-% covid(location(7, 4)).
-% protection(location(0, 7)).
-% protection(location(0, 8)).
-
-% gets a generated rendom map, applies algorithm, and write results
+% applies algorithm, and writes results
 start_backtrack :-
-    get_random_map,
-    write("Please allow up to 1 minute, backtracking is not the best algorithm for shortest path problems!"), nl,
+    write("Please allow up to 2 minutes, backtracking is not the best algorithm for shortest path problems!"), nl,
     (backtrack -> true; true),
     best_run(X),
     best_path(P),
-    (P = [] -> (throw("No path was found")); true),
-    write('Shortest path length: '),
-    write(X), nl, 
-    write('Shortest path: '),
-    write(P), nl,
-    assert(best_run(12)), !.
+    F is 0,
+    (P = [] -> (write("No path was found"), F is 1); true),
+    F =:= 0 ->
+    (
+        write('Shortest path length: '),
+        write(X), nl, 
+        write('Shortest path: '),
+        reverse(P, Pr),
+        write(Pr), nl,
+        assert(best_run(12)), !
+    ); true.
 
 % retry if test failed
 test_util :-
     \+ start_backtrack -> test_util; true.
 
-% starting point: after loading the knowledge base, just write 'test_bt.' and see the magic!
+% starting point (map has to be defined before usage, check main.pl)
 test_bt :-
-    ['backtracking.pl'],
     time(test_util).

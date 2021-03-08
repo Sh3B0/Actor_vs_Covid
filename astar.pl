@@ -41,43 +41,8 @@ astar_util([(_, _, P, [X|R1])|R2], End, C, Tmp):-
 heruistic(L1, L2, Her):- 
     distance(L1, L2, Her).
 
-
-% Hard-coded maps for custom testing (check report for visualization)
-% TO USE: uncomment the map lines and comment the first line 'get_random_map' in rule 'start_astar'
-
-% home(location(1,1)).
-% covid(location(4,1)).
-% covid(location(1,6)).
-% protection1(location(4,4)).
-% protection2(location(7,7)).
-
-% home(location(8,8)).
-% covid(location(7,3)).
-% covid(location(7,6)).
-% protection1(location(0,6)).
-% protection2(location(0,7)).
-
-% home(location(1, 7)).
-% covid(location(1, 5)).
-% covid(location(3, 7)).
-% protection1(location(1, 0)).
-% protection2(location(8, 8)).
-
-% home(location(8, 5)).
-% covid(location(6, 5)).
-% covid(location(8, 3)).
-% protection1(location(3, 5)).
-% protection2(location(8, 8)).
-
-% home(location(1, 7)).
-% covid(location(1, 5)).
-% covid(location(3, 7)).
-% protection1(location(0, 7)).
-% protection2(location(0, 8)).
-
-% gets a generated rendom map, applies algorithm, and write results
+% applies algorithm, and writes results
 start_astar :-
-    get_random_map,
     home(H),
     findall(_, construct_kb, _),
     (
@@ -120,7 +85,6 @@ start_astar :-
     ),
     nl, write("Shortest path length: "), write(Spl), nl.
 
-% starting point: after loading the knowledge base, just write 'test_as.' and see the magic!
+% starting point (map has to be defined before usage, check main.pl)
 test_as :-
-    ['astar.pl'],
-    time(once(start_astar)).
+    catch(time(once(start_astar)), error(instantiation_error, _), (write("No path was found"), nl)).
