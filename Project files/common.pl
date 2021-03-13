@@ -89,7 +89,7 @@ v(X, Y) :-
             (protection(location(X, Y)) -> write('P') ; false);
             (X = 8, Y = 0 -> write('A') ; false)
         );
-        write('.')
+        write('+')
     ),
     (Y = 8 -> nl; true).
 

@@ -1,5 +1,5 @@
 # Prolog_task
-Implementing Backtracking Search and A* algorithm in SWI-PROLOG, for solving a maze-like task.  
+Implementing Backtracking Search and A* algorithm in SWI-PROLOG, for solving a maze-like [task](./Task.pdf).  
 - Assignment submission for Artifical Intelligence course  
 
 ## Online testing
