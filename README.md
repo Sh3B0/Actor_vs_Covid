@@ -2,7 +2,9 @@
 Implementing Backtracking Search and A* algorithm in SWI-PROLOG, for solving a maze-like task.  
 - Assignment submission for Artifical Intelligence course  
 
-## Testing
+## Online testing
+Access a live version at https://swish.swi-prolog.org/p/AhmedNouralla.pl
+## Offline testing
 1. Run [swipl](https://www.swi-prolog.org/download/stable)
 2. Load the main Knowledge Base, i.e., `['main.pl'].` 
 3. Query `test.` to generate a random map and run both algorithm for comparison  
@@ -13,3 +15,4 @@ Implementing Backtracking Search and A* algorithm in SWI-PROLOG, for solving a m
 - C - Covid  
 - P - Protection (Mask/Doctor)  
 - H - Home  
+- \+ - Empty cell
