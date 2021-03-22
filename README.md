@@ -1,4 +1,4 @@
-# Prolog_task
+# Actor_vs_Covid
 Implementing Backtracking Search and A* algorithm in SWI-PROLOG, for solving a maze-like [task](./Task.pdf).  
 - Assignment submission for Artifical Intelligence course  
 
